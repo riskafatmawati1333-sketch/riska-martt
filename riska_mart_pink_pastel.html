@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#db4b83">
+  <title>RISKA MART - Aplikasi Kasir</title>
+  <style>
+    :root {
+      --primary:#db4b83; --primary-dark:#c93670; --bg:#fffafd;
+      --card:#ffffff; --text:#392b32; --muted:#64748b; --line:#f2dfe6;
+      --soft:#fff5d6; --danger:#dc2626; --success:#15803d;
+      --shadow:0 8px 24px rgba(120,65,85,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+    button,input,select{font:inherit}
+    button{cursor:pointer;border:0;border-radius:10px;padding:11px 14px;font-weight:700}
+    button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #f6c7d8;outline-offset:2px}
+    .topbar{background:linear-gradient(120deg,#e879a4,#f3b7c9);color:#fff;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:var(--shadow)}
+    .brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:13px;background:#ffe28a;color:#b83268;display:grid;place-items:center;font-size:24px;font-weight:900}
+    .brand h1{font-size:21px;margin:0}.brand p{margin:4px 0 0;font-size:12px;opacity:.9}
+    .top-actions{display:flex;gap:8px;flex-wrap:wrap}.top-actions button{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.3)}
+    .layout{max-width:1250px;margin:22px auto;padding:0 16px;display:grid;grid-template-columns:minmax(0,1.65fr) minmax(300px,.9fr);gap:18px}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px;min-width:0}
+    .section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    h2{font-size:18px;margin:0}h3{font-size:15px;margin:0 0 12px}
+    .muted{color:var(--muted);font-size:13px}
+    .search-row{display:flex;gap:9px;margin:14px 0;flex-wrap:wrap}
+    input,select{border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fff;color:var(--text);min-width:0}
+    .search-row input{flex:1;min-width:150px}
+    .primary{background:var(--primary);color:#fff}.primary:hover{background:var(--primary-dark)}
+    .secondary{background:#fff1c2;color:#8a4b20}.danger{background:#fee2e2;color:#b91c1c}
+    .ghost{background:#f1f5f9;color:#334155}
+    .product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .product{border:1px solid var(--line);border-radius:13px;padding:13px;display:flex;flex-direction:column;gap:8px;min-width:0}
+    .product .emoji{font-size:29px;background:var(--soft);width:48px;height:48px;display:grid;place-items:center;border-radius:12px}
+    .product strong{font-size:14px;overflow-wrap:anywhere}.product .price{font-weight:800;color:var(--primary)}
+    .product small{color:var(--muted)}.product button{width:100%;margin-top:auto}
+    .cart-list{display:flex;flex-direction:column;gap:10px;max-height:340px;overflow:auto}
+    .cart-item{display:grid;grid-template-columns:1fr auto;gap:8px;border-bottom:1px solid var(--line);padding-bottom:10px}
+    .cart-item strong{font-size:13px}.cart-item small{display:block;color:var(--muted);margin-top:4px}
+    .qty{display:flex;align-items:center;gap:7px;margin-top:7px}.qty button{padding:4px 9px;border-radius:7px;background:#ffe6ef;color:#c93670}
+    .cart-item .remove{background:#fee2e2;color:#b91c1c;padding:6px 9px}
+    .totals{border-top:1px solid var(--line);margin-top:14px;padding-top:12px;display:grid;gap:9px}
+    .total-line{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+    .total-line.grand{font-size:19px;font-weight:900;color:var(--primary);padding-top:7px;border-top:1px dashed var(--line)}
+    .field{display:grid;gap:6px;margin:10px 0}.field label{font-size:13px;font-weight:700}
+    .field input,.field select{width:100%}
+    .pay-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .full{width:100%}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .tab{background:#fff1d6;color:#334155}.tab.active{background:var(--primary);color:#fff}
+    .hidden{display:none!important}
+    .table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px;min-width:480px}
+    th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}th{background:#fff5d6;color:#9a4b28}
+    .stock-low{color:#b91c1c;font-weight:700}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(70,35,50,.55);display:grid;place-items:center;padding:16px;z-index:10}
+    .modal{background:#fff;border-radius:16px;padding:20px;width:min(440px,100%);max-height:90vh;overflow:auto;box-shadow:var(--shadow)}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .receipt{font-family:monospace;font-size:13px;line-height:1.55;border:1px dashed #94a3b8;padding:16px;background:#fff;color:#111}
+    .receipt h3{text-align:center;margin:0}.receipt .center{text-align:center}
+    .receipt hr{border:0;border-top:1px dashed #777;margin:9px 0}
+    .receipt-row{display:flex;justify-content:space-between;gap:8px}
+    .empty{text-align:center;padding:28px 10px;color:var(--muted);font-size:13px}
+    .notice{background:#fff5d6;color:#9a4b28;border-radius:10px;padding:10px 12px;font-size:12px;margin-top:12px}
+    footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
+    @media(max-width:850px){.layout{grid-template-columns:1fr}.product-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:560px){.topbar{padding:14px}.brand h1{font-size:18px}.brand p{font-size:11px}.top-actions button{padding:9px;font-size:12px}.layout{margin:13px auto;padding:0 10px;gap:12px}.panel{padding:14px}.product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.product{padding:10px}.product .emoji{width:42px;height:42px;font-size:25px}.pay-row{grid-template-columns:1fr}.section-head{align-items:flex-start}}
+    @media print{body *{visibility:hidden!important}.receipt,.receipt *{visibility:visible!important}.receipt{position:absolute;left:0;top:0;width:100%;border:0}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><div class="logo">R</div><div><h1>RISKA MART</h1><p>Aplikasi Mesin Kasir Toko</p></div></div>
+    <div class="top-actions">
+      <button onclick="showTab('products')">Produk</button>
+      <button onclick="showTab('history')">Riwayat</button>
+      <button onclick="showTab('manage')">Kelola Produk</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel" id="mainPanel">
+      <div id="productsTab">
+        <div class="section-head"><div><h2>Daftar Produk</h2><span class="muted">Pilih produk untuk memasukkannya ke keranjang</span></div><span class="muted" id="productCount"></span></div>
+        <div class="search-row">
+          <input id="searchInput" type="search" placeholder="Cari nama produk..." oninput="renderProducts()">
+          <select id="categoryFilter" onchange="renderProducts()"><option value="">Semua kategori</option></select>
+        </div>
+        <div class="product-grid" id="productGrid"></div>
+      </div>
+      <div id="historyTab" class="hidden">
+        <div class="section-head"><div><h2>Riwayat Transaksi</h2><span class="muted">Transaksi tersimpan di browser ini</span></div><button class="danger" onclick="clearHistory()">Hapus Riwayat</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>No. Transaksi</th><th>Total</th><th>Aksi</th></tr></thead><tbody id="historyBody"></tbody></table></div>
+        <div id="historyEmpty" class="empty hidden">Belum ada transaksi.</div>
+      </div>
+      <div id="manageTab" class="hidden">
+        <div class="section-head"><div><h2>Kelola Produk</h2><span class="muted">Tambah, ubah, atau hapus produk</span></div><button class="primary" onclick="openProductModal()">+ Tambah</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Produk</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead><tbody id="manageBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="section-head"><div><h2>🛒 Keranjang Belanja</h2><span class="muted" id="cartCount">0 barang</span></div><button class="ghost" onclick="clearCart()">Kosongkan</button></div>
+      <div id="cartList" class="cart-list"><div class="empty">Keranjang masih kosong.</div></div>
+      <div class="totals">
+        <div class="total-line"><span>Subtotal</span><strong id="subtotal">Rp0</strong></div>
+        <div class="field"><label for="discount">Diskon (Rp)</label><input id="discount" type="number" min="0" value="0" oninput="updateTotals()"></div>
+        <div class="field"><label for="tax">Pajak (%) - opsional</label><input id="tax" type="number" min="0" max="100" value="0" oninput="updateTotals()"></div>
+        <div class="total-line"><span>Pajak</span><strong id="taxAmount">Rp0</strong></div>
+        <div class="total-line grand"><span>Total Bayar</span><strong id="grandTotal">Rp0</strong></div>
+      </div>
+      <div class="field"><label for="cash">Uang Dibayar (Rp)</label><input id="cash" type="number" min="0" placeholder="Masukkan uang pelanggan" oninput="updateChange()"></div>
+      <div class="total-line"><span>Kembalian</span><strong id="change">Rp0</strong></div>
+      <button class="primary full" style="margin-top:14px" onclick="checkout()">Bayar & Buat Struk</button>
+      <div class="notice">Data produk dan transaksi disimpan di localStorage browser. Data tetap ada saat halaman dibuka kembali di perangkat yang sama.</div>
+    </aside>
+  </main>
+  <footer>RISKA MART · Proyek Aplikasi Kasir XI RPL · Dibuat dengan HTML, CSS, dan JavaScript</footer>
+
+  <div id="modalRoot"></div>
+
+<script>
+const DEFAULT_PRODUCTS = [
+  {id:1,name:"Beras 1 kg",category:"Sembako",price:15000,stock:30,emoji:"🍚"},
+  {id:2,name:"Minyak Goreng 1 L",category:"Sembako",price:18000,stock:25,emoji:"🫗"},
+  {id:3,name:"Gula Pasir 1 kg",category:"Sembako",price:16000,stock:20,emoji:"🍬"},
+  {id:4,name:"Mi Instan",category:"Makanan",price:3500,stock:60,emoji:"🍜"},
+  {id:5,name:"Roti Cokelat",category:"Makanan",price:7000,stock:18,emoji:"🍞"},
+  {id:6,name:"Biskuit",category:"Makanan",price:8500,stock:22,emoji:"🍪"},
+  {id:7,name:"Air Mineral",category:"Minuman",price:4000,stock:50,emoji:"💧"},
+  {id:8,name:"Susu Kotak",category:"Minuman",price:6500,stock:28,emoji:"🥛"},
+  {id:9,name:"Teh Botol",category:"Minuman",price:5000,stock:35,emoji:"🧃"},
+  {id:10,name:"Sabun Mandi",category:"Kebutuhan",price:5000,stock:24,emoji:"🧼"},
+  {id:11,name:"Pasta Gigi",category:"Kebutuhan",price:12000,stock:16,emoji:"🪥"},
+  {id:12,name:"Sampo Sachet",category:"Kebutuhan",price:2000,stock:70,emoji:"🧴"}
+];
+const getSaved = (key, fallback) => { try { const value=localStorage.getItem(key); return value ? JSON.parse(value) : fallback; } catch(e){ return fallback; } };
+let products = getSaved("riskaMartProducts", DEFAULT_PRODUCTS);
+let cart = [];
+let history = getSaved("riskaMartHistory", []);
+let lastReceipt = null;
+const money = n => new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(Number(n)||0);
+const save = () => { localStorage.setItem("riskaMartProducts",JSON.stringify(products)); localStorage.setItem("riskaMartHistory",JSON.stringify(history)); };
+const escapeHTML = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function renderProducts(){
+  const query=document.getElementById("searchInput").value.toLowerCase();
+  const category=document.getElementById("categoryFilter").value;
+  const categories=[...new Set(products.map(p=>p.category))].sort();
+  const select=document.getElementById("categoryFilter"), current=select.value;
+  select.innerHTML='<option value="">Semua kategori</option>'+categories.map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");
+  select.value=categories.includes(current)?current:"";
+  const filtered=products.filter(p=>p.name.toLowerCase().includes(query)&&(!select.value||p.category===select.value));
+  document.getElementById("productCount").textContent=products.length+" produk";
+  document.getElementById("productGrid").innerHTML=filtered.length?filtered.map(p=>`
+    <article class="product">
+      <div class="emoji">${p.emoji||"🛍️"}</div><strong>${escapeHTML(p.name)}</strong>
+      <small>${escapeHTML(p.category)} · Stok: ${p.stock}</small><div class="price">${money(p.price)}</div>
+      <button class="primary" ${p.stock<=0?"disabled":""} onclick="addToCart(${p.id})">${p.stock<=0?"Stok Habis":"+ Keranjang"}</button>
+    </article>`).join(""):'<div class="empty">Produk tidak ditemukan.</div>';
+}
+function renderCart(){
+  const box=document.getElementById("cartList");
+  if(!cart.length){box.innerHTML='<div class="empty">Keranjang masih kosong.</div>';}
+  else box.innerHTML=cart.map(item=>{const p=products.find(x=>x.id===item.id);if(!p)return "";return `
+    <div class="cart-item"><div><strong>${escapeHTML(p.name)}</strong><small>${money(p.price)} × ${item.qty} = ${money(p.price*item.qty)}</small>
+    <div class="qty"><button onclick="changeQty(${p.id},-1)">−</button><b>${item.qty}</b><button onclick="changeQty(${p.id},1)">+</button></div></div>
+    <button class="remove" aria-label="Hapus ${escapeHTML(p.name)}" onclick="removeItem(${p.id})">✕</button></div>`;}).join("");
+  document.getElementById("cartCount").textContent=cart.reduce((s,i)=>s+i.qty,0)+" barang";
+  updateTotals();
+}
+function addToCart(id){const p=products.find(x=>x.id===id);if(!p||p.stock<=0)return;const item=cart.find(x=>x.id===id);if(item){if(item.qty>=p.stock){alert("Jumlah melebihi stok.");return;}item.qty++;}else cart.push({id,qty:1});renderCart();}
+function changeQty(id,delta){const item=cart.find(x=>x.id===id),p=products.find(x=>x.id===id);if(!item||!p)return;const next=item.qty+delta;if(next<=0)cart=cart.filter(x=>x.id!==id);else if(next<=p.stock)item.qty=next;else alert("Jumlah melebihi stok.");renderCart();}
+function removeItem(id){cart=cart.filter(x=>x.id!==id);renderCart();}
+function clearCart(){if(!cart.length)return;if(confirm("Kosongkan keranjang?")){cart=[];renderCart();}}
+function calculate(){const subtotal=cart.reduce((s,i)=>{const p=products.find(x=>x.id===i.id);return s+(p?p.price*i.qty:0);},0);const discount=Math.min(subtotal,Math.max(0,Number(document.getElementById("discount").value)||0));const taxable=subtotal-discount;const tax=taxable*(Math.max(0,Number(document.getElementById("tax").value)||0)/100);return {subtotal,discount,tax,total:Math.round(taxable+tax)};}
+function updateTotals(){const t=calculate();document.getElementById("subtotal").textContent=money(t.subtotal);document.getElementById("taxAmount").textContent=money(t.tax);document.getElementById("grandTotal").textContent=money(t.total);updateChange();}
+function updateChange(){const total=calculate().total,cash=Math.max(0,Number(document.getElementById("cash").value)||0);document.getElementById("change").textContent=money(Math.max(0,cash-total));}
+function checkout(){
+  if(!cart.length){alert("Keranjang masih kosong.");return;}
+  const t=calculate(),cash=Number(document.getElementById("cash").value)||0;
+  if(cash<t.total){alert("Uang pembayaran masih kurang.");return;}
+  for(const item of cart){const p=products.find(x=>x.id===item.id);if(!p||p.stock<item.qty){alert("Stok "+(p?p.name:"produk")+" tidak mencukupi.");return;}}
+  cart.forEach(item=>{const p=products.find(x=>x.id===item.id);p.stock-=item.qty;});
+  const transaction={id:"RM-"+Date.now(),date:new Date().toLocaleString("id-ID"),items:cart.map(i=>{const p=products.find(x=>x.id===i.id);return {name:p.name,price:p.price,qty:i.qty};}),subtotal:t.subtotal,discount:t.discount,tax:t.tax,total:t.total,cash,change:cash-t.total};
+  history.unshift(transaction);lastReceipt=transaction;save();cart=[];document.getElementById("cash").value="";document.getElementById("discount").value=0;document.getElementById("tax").value=0;renderAll();showReceipt(transaction);
+}
+function receiptHTML(tx){return `<div class="receipt"><h3>RISKA MART</h3><div class="center">Terima kasih sudah berbelanja</div><hr><div>No: ${escapeHTML(tx.id)}</div><div>${escapeHTML(tx.date)}</div><hr>${tx.items.map(i=>`<div>${escapeHTML(i.name)}<br><div class="receipt-row"><span>${i.qty} x ${money(i.price)}</span><span>${money(i.qty*i.price)}</span></div></div>`).join("")}<hr><div class="receipt-row"><span>Subtotal</span><b>${money(tx.subtotal)}</b></div><div class="receipt-row"><span>Diskon</span><b>${money(tx.discount)}</b></div><div class="receipt-row"><span>Pajak</span><b>${money(tx.tax)}</b></div><div class="receipt-row"><b>Total</b><b>${money(tx.total)}</b></div><div class="receipt-row"><span>Bayar</span><span>${money(tx.cash)}</span></div><div class="receipt-row"><span>Kembalian</span><b>${money(tx.change)}</b></div><hr><div class="center">Simpan struk ini sebagai bukti pembayaran.</div></div>`;}
+function showReceipt(tx){document.getElementById("modalRoot").innerHTML=`<div class="modal-backdrop" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-head"><h2>Struk Belanja</h2><button class="ghost" onclick="closeModal()">✕</button></div><div id="receiptContent">${receiptHTML(tx)}</div><div class="pay-row" style="margin-top:14px"><button class="primary" onclick="window.print()">Cetak Struk</button><button class="secondary" onclick="downloadReceipt()">Simpan TXT</button></div></div></div>`;}
+function downloadReceipt(){if(!lastReceipt)return;const textContent=`RISKA MART\n${lastReceipt.id}\n${lastReceipt.date}\n\n${lastReceipt.items.map(i=>`${i.name} ${i.qty} x ${money(i.price)} = ${money(i.qty*i.price)}`).join("\n")}\n\nSubtotal: ${money(lastReceipt.subtotal)}\nDiskon: ${money(lastReceipt.discount)}\nPajak: ${money(lastReceipt.tax)}\nTotal: ${money(lastReceipt.total)}\nBayar: ${money(lastReceipt.cash)}\nKembalian: ${money(lastReceipt.change)}`;const a=document.createElement("a"),url=URL.createObjectURL(new Blob([textContent],{type:"text/plain"}));a.href=url;a.download=`struk-${lastReceipt.id}.txt`;a.click();URL.revokeObjectURL(url);}
+function closeModal(){document.getElementById("modalRoot").innerHTML="";}
+function renderHistory(){const body=document.getElementById("historyBody");body.innerHTML=history.map(tx=>`<tr><td>${escapeHTML(tx.date)}</td><td>${escapeHTML(tx.id)}</td><td>${money(tx.total)}</td><td><button class="secondary" onclick="viewHistoryReceipt('${tx.id}')">Lihat Struk</button></td></tr>`).join("");document.getElementById("historyEmpty").classList.toggle("hidden",history.length>0);}
+function viewHistoryReceipt(id){const tx=history.find(x=>x.id===id);if(tx){lastReceipt=tx;showReceipt(tx);}}
+function clearHistory(){if(!history.length)return;if(confirm("Hapus semua riwayat transaksi?")){history=[];save();renderHistory();}}
+function renderManage(){document.getElementById("manageBody").innerHTML=products.map(p=>`<tr><td>${escapeHTML(p.emoji||"🛍️")} ${escapeHTML(p.name)}</td><td>${escapeHTML(p.category)}</td><td>${money(p.price)}</td><td class="${p.stock<5?"stock-low":""}">${p.stock}</td><td><button class="secondary" onclick="openProductModal(${p.id})">Edit</button> <button class="danger" onclick="deleteProduct(${p.id})">Hapus</button></td></tr>`).join("");}
+function openProductModal(id=null){const p=id?products.find(x=>x.id===id):null;document.getElementById("modalRoot").innerHTML=`<div class="modal-backdrop" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-head"><h2>${p?"Edit Produk":"Tambah Produk"}</h2><button class="ghost" onclick="closeModal()">✕</button></div><form onsubmit="saveProduct(event,${id||"null"})"><div class="field"><label>Nama Produk</label><input name="name" required maxlength="50" value="${p?escapeHTML(p.name):""}"></div><div class="field"><label>Kategori</label><input name="category" required maxlength="30" value="${p?escapeHTML(p.category):""}" placeholder="Contoh: Makanan"></div><div class="pay-row"><div class="field"><label>Harga (Rp)</label><input name="price" type="number" min="1" required value="${p?p.price:""}"></div><div class="field"><label>Stok</label><input name="stock" type="number" min="0" required value="${p?p.stock:0}"></div></div><div class="field"><label>Emoji produk</label><input name="emoji" maxlength="4" value="${p?escapeHTML(p.emoji||"🛍️"):"🛍️"}"></div><button class="primary full" type="submit">Simpan Produk</button></form></div></div>`;}
+function saveProduct(event,id){event.preventDefault();const f=new FormData(event.target),data={name:f.get("name").trim(),category:f.get("category").trim(),price:Number(f.get("price")),stock:Number(f.get("stock")),emoji:f.get("emoji")||"🛍️"};if(!data.name||!data.category||data.price<=0||data.stock<0){alert("Periksa kembali data produk.");return;}if(id){Object.assign(products.find(p=>p.id===id),data);}else{data.id=Date.now();products.push(data);}save();closeModal();renderAll();}
+function deleteProduct(id){const p=products.find(x=>x.id===id);if(!p)return;if(confirm(`Hapus produk ${p.name}?`)){products=products.filter(x=>x.id!==id);cart=cart.filter(x=>x.id!==id);save();renderAll();}}
+function showTab(tab){["products","history","manage"].forEach(t=>document.getElementById(t+"Tab").classList.toggle("hidden",t!==tab));if(tab==="history")renderHistory();if(tab==="manage")renderManage();}
+function renderAll(){renderProducts();renderCart();renderHistory();renderManage();}
+renderAll();
+</script>
+</body>
+</html>
